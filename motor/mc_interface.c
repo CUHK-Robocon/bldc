@@ -1462,6 +1462,37 @@ float mc_interface_get_pid_pos_now(void) {
 	return ret;
 }
 
+float mc_interface_get_pid_pos_full_now(void) {
+	float ret = 0.0;
+
+	volatile mc_configuration *conf = &motor_now()->m_conf;
+
+	switch (conf->motor_type) {
+	case MOTOR_TYPE_BLDC:
+	case MOTOR_TYPE_DC:
+		// TODO(ymleung314): Full range PID position for (BL)DC mode.
+		break;
+
+	case MOTOR_TYPE_FOC:
+		ret = mcpwm_foc_get_pid_pos_full_now();
+		break;
+
+	default:
+		break;
+	}
+
+	if (encoder_is_configured()) {
+		if (conf->foc_encoder_inverted) {
+			ret *= -1.0;
+		}
+	}
+
+	ret *= DIR_MULT;
+	ret -= motor_now()->m_conf.p_pid_offset;
+
+	return ret;
+}
+
 /**
  * Update the offset such that the current angle becomes angle_now
  */

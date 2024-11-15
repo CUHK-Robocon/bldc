@@ -20,6 +20,7 @@
 #include "buffer.h"
 #include <math.h>
 #include <stdbool.h>
+#include <string.h>
 
 void buffer_append_int16(uint8_t* buffer, int16_t number, int32_t *index) {
 	buffer[(*index)++] = number >> 8;
@@ -74,6 +75,11 @@ void buffer_append_float16(uint8_t* buffer, float number, float scale, int32_t *
 
 void buffer_append_float32(uint8_t* buffer, float number, float scale, int32_t *index) {
     buffer_append_int32(buffer, (int32_t)(number * scale), index);
+}
+
+void buffer_append_float32_ieee754(uint8_t* buffer, float number, int32_t *index) {
+	memcpy(buffer + *index, &number, sizeof(float));
+	*index += sizeof(float);
 }
 
 void buffer_append_double64(uint8_t* buffer, double number, double scale, int32_t *index) {

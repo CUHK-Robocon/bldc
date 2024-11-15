@@ -30,6 +30,7 @@ void buffer_append_int64(uint8_t* buffer, int64_t number, int32_t *index);
 void buffer_append_uint64(uint8_t* buffer, uint64_t number, int32_t *index);
 void buffer_append_float16(uint8_t* buffer, float number, float scale, int32_t *index);
 void buffer_append_float32(uint8_t* buffer, float number, float scale, int32_t *index);
+void buffer_append_float32_ieee754(uint8_t* buffer, float number, int32_t *index);
 void buffer_append_double64(uint8_t* buffer, double number, double scale, int32_t *index);
 void buffer_append_float32_auto(uint8_t* buffer, float number, int32_t *index);
 void buffer_append_float64_auto(uint8_t* buffer, double number, int32_t *index);

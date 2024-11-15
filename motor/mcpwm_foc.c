@@ -1037,6 +1037,11 @@ float mcpwm_foc_get_pid_pos_now(void) {
 	return get_motor_now()->m_pos_pid_now;
 }
 
+float mcpwm_foc_get_pid_pos_full_now(void) {
+	volatile motor_all_state_t *motor_now = get_motor_now();
+	return motor_now->m_pos_pid_cycle * 360 + motor_now->m_pos_pid_now;
+}
+
 /**
  * Get the current switching frequency.
  *
@@ -2809,6 +2814,26 @@ void mcpwm_foc_tim_sample_int_handler(void) {
 	}
 }
 
+void update_pos_pid_full(motor_all_state_t* motor) {
+	if (!motor->m_pos_pid_last_inited) {
+		motor->m_pos_pid_last = motor->m_pos_pid_now;
+
+		motor->m_pos_pid_last_inited = true;
+		return;
+	}
+
+	float diff = motor->m_pos_pid_now - motor->m_pos_pid_last;
+	if (fabsf(diff) >= 270) {
+		if (diff > 0) {
+			--motor->m_pos_pid_cycle;
+		} else {
+			++motor->m_pos_pid_cycle;
+		}
+	}
+
+	motor->m_pos_pid_last = motor->m_pos_pid_now;
+}
+
 void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 	(void)p;
 	(void)flags;
@@ -3653,6 +3678,8 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 		motor_now->m_pos_pid_now = motor_now->m_pid_div_angle_accumulator + angle_now / conf_now->p_pid_ang_div;
 		utils_norm_angle((float*)&motor_now->m_pos_pid_now);
 	}
+
+	update_pos_pid_full(motor_now);
 
 #ifdef AD2S1205_SAMPLE_GPIO
 	// Release sample in the AD2S1205 resolver IC.

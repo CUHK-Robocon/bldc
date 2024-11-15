@@ -170,6 +170,9 @@ typedef struct {
 	int m_tachometer;
 	int m_tachometer_abs;
 	float m_pos_pid_now;
+	bool m_pos_pid_last_inited;
+	float m_pos_pid_last;
+	int m_pos_pid_cycle;
 	float m_gamma_now;
 	bool m_using_encoder;
 	int m_duty1_next, m_duty2_next, m_duty3_next;

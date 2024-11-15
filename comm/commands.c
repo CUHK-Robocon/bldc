@@ -478,6 +478,10 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 			send_buffer[ind++] = status;
 		}
 
+		if (mask & ((uint32_t)1 << 31)) {
+			buffer_append_float32_ieee754(send_buffer, mc_interface_get_pid_pos_full_now(), &ind);
+		}
+
 		reply_func(send_buffer, ind);
 		mempools_free_packet_buffer(send_buffer);
 	} break;

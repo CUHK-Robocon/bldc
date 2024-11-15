@@ -86,6 +86,7 @@ float mc_interface_read_reset_avg_vd(void);
 float mc_interface_read_reset_avg_vq(void);
 float mc_interface_get_pid_pos_set(void);
 float mc_interface_get_pid_pos_now(void);
+float mc_interface_get_pid_pos_full_now(void);
 void mc_interface_update_pid_pos_offset(float angle_now, bool store);
 float mc_interface_get_last_sample_adc_isr_duration(void);
 void mc_interface_sample_print_data(debug_sampling_mode mode, uint16_t len, uint8_t decimation, bool raw, 

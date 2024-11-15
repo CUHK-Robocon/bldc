@@ -51,6 +51,7 @@ float mcpwm_foc_get_duty_cycle_set(void);
 float mcpwm_foc_get_duty_cycle_now(void);
 float mcpwm_foc_get_pid_pos_set(void);
 float mcpwm_foc_get_pid_pos_now(void);
+float mcpwm_foc_get_pid_pos_full_now(void);
 float mcpwm_foc_get_switching_frequency_now(void);
 float mcpwm_foc_get_sampling_frequency_now(void);
 float mcpwm_foc_get_rpm(void);
