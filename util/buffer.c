@@ -225,6 +225,14 @@ float buffer_get_float32(const uint8_t *buffer, float scale, int32_t *index) {
     return (float)buffer_get_int32(buffer, index) / scale;
 }
 
+float buffer_get_float32_ieee754(const uint8_t *buffer, int32_t *index) {
+	float f;
+	uint8_t* ptr = (uint8_t*) &f;
+	for (int i = sizeof(float) - 1; i >= 0; --i)
+		*(ptr + i) = buffer[(*index)++];
+	return f;
+}
+
 double buffer_get_double64(const uint8_t *buffer, double scale, int32_t *index) {
     return (double)buffer_get_int64(buffer, index) / scale;
 }

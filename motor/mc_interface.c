@@ -654,6 +654,43 @@ void mc_interface_set_pid_pos(float pos) {
 	events_add("set_pid_pos", pos);
 }
 
+void mc_interface_set_pid_pos_full(float pos) {
+	SHUTDOWN_RESET();
+
+	if (mc_interface_try_input()) {
+		return;
+	}
+
+	volatile mc_configuration *conf = &motor_now()->m_conf;
+
+	motor_now()->m_position_set = pos;
+
+	pos += motor_now()->m_conf.p_pid_offset;
+	pos *= DIR_MULT;
+
+	if (encoder_is_configured()) {
+		if (conf->foc_encoder_inverted) {
+			pos *= -1.0;
+		}
+	}
+
+	switch (conf->motor_type) {
+	case MOTOR_TYPE_BLDC:
+	case MOTOR_TYPE_DC:
+		// TODO(ymleung314): Full range PID position control for (BL)DC mode.
+		break;
+
+	case MOTOR_TYPE_FOC:
+		mcpwm_foc_set_pid_pos(pos);
+		break;
+
+	default:
+		break;
+	}
+
+	events_add("set_pid_pos_full", pos);
+}
+
 void mc_interface_set_current(float current) {
 	if (fabsf(current) > 0.001) {
 		SHUTDOWN_RESET();

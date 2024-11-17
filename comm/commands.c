@@ -516,6 +516,12 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 		timeout_reset();
 	} break;
 
+	case COMM_SET_POS_FULL: {
+		int32_t ind = 0;
+		mc_interface_set_pid_pos_full(buffer_get_float32_ieee754(data, &ind));
+		timeout_reset();
+	} break;
+
 	case COMM_SET_HANDBRAKE: {
 		int32_t ind = 0;
 		mc_interface_set_handbrake(buffer_get_float32(data, 1e3, &ind));

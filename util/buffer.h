@@ -43,6 +43,7 @@ int64_t buffer_get_int64(const uint8_t *buffer, int32_t *index);
 uint64_t buffer_get_uint64(const uint8_t *buffer, int32_t *index);
 float buffer_get_float16(const uint8_t *buffer, float scale, int32_t *index);
 float buffer_get_float32(const uint8_t *buffer, float scale, int32_t *index);
+float buffer_get_float32_ieee754(const uint8_t *buffer, int32_t *index);
 double buffer_get_double64(const uint8_t *buffer, double scale, int32_t *index);
 float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index);
 double buffer_get_float64_auto(const uint8_t *buffer, int32_t *index);
