@@ -78,8 +78,9 @@ void buffer_append_float32(uint8_t* buffer, float number, float scale, int32_t *
 }
 
 void buffer_append_float32_ieee754(uint8_t* buffer, float number, int32_t *index) {
-	memcpy(buffer + *index, &number, sizeof(float));
-	*index += sizeof(float);
+	uint8_t* ptr = (uint8_t*) &number;
+	for (int i = sizeof(float) - 1; i >= 0; --i)
+		buffer[(*index)++] = *(ptr + i);
 }
 
 void buffer_append_double64(uint8_t* buffer, double number, double scale, int32_t *index) {
