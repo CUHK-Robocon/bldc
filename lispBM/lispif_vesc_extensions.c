@@ -2293,8 +2293,8 @@ static lbm_value ext_can_get_dist(lbm_value *args, lbm_uint argn) {
 	can_status_msg_5 *stat5 = comm_can_get_status_msg_5_id(lbm_dec_as_i32(args[0]));
 	if (stat5) {
 		const volatile mc_configuration *conf = mc_interface_get_configuration();
-		const float tacho_scale = (conf->si_wheel_diameter * M_PI) / (3.0 * conf->si_motor_poles * conf->si_gear_ratio);
-		return lbm_enc_float((float)stat5->tacho_value * tacho_scale);
+		const float scale = conf->si_wheel_diameter * M_PI / 360;
+		return lbm_enc_float((float)stat5->pid_pos_full_now * scale);
 	} else {
 		return lbm_enc_float(0.0);
 	}

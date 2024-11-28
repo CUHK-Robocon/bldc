@@ -1200,7 +1200,7 @@ void comm_can_send_status4(uint8_t id, bool replace) {
 void comm_can_send_status5(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_int32(buffer, mc_interface_get_tachometer_value(false), &send_index);
+	buffer_append_float32_ieee754(buffer, mc_interface_get_pid_pos_full_now(), &send_index);
 	buffer_append_int16(buffer, (int16_t)(mc_interface_get_input_voltage_filtered() * 1e1), &send_index);
 	buffer_append_int16(buffer, 0, &send_index); // Reserved for now
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_5 << 8),
@@ -2023,7 +2023,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp_5->id = id;
 				stat_tmp_5->rx_time = chVTGetSystemTimeX();
-				stat_tmp_5->tacho_value = buffer_get_int32(data8, &ind);
+				stat_tmp_5->pid_pos_full_now = buffer_get_float32_ieee754(data8, &ind);
 				stat_tmp_5->v_in = (float)buffer_get_int16(data8, &ind) / 1e1;
 				break;
 			}

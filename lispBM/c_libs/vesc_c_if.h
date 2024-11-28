@@ -62,7 +62,7 @@ typedef struct {
 	int id;
 	systime_t rx_time;
 	float v_in;
-	int32_t tacho_value;
+	float pid_pos_full_now;
 } can_status_msg_5;
 
 typedef struct {
