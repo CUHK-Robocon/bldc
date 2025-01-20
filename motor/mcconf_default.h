@@ -63,10 +63,10 @@
 #define MCCONF_L_MAX_VOLTAGE			57.0	// Maximum input voltage
 #endif
 #ifndef MCCONF_L_BATTERY_CUT_START
-#define MCCONF_L_BATTERY_CUT_START		10.0	// Start limiting the positive current at this voltage
+#define MCCONF_L_BATTERY_CUT_START		20.4	// Start limiting the positive current at this voltage
 #endif
 #ifndef MCCONF_L_BATTERY_CUT_END
-#define MCCONF_L_BATTERY_CUT_END		8.0		// Limit the positive current completely at this voltage
+#define MCCONF_L_BATTERY_CUT_END		18.6	// Limit the positive current completely at this voltage
 #endif
 #ifndef MCCONF_L_BATTERY_REGEN_CUT_START
 #define MCCONF_L_BATTERY_REGEN_CUT_START    1000.0	// Start limiting the regen current at this voltage
@@ -75,10 +75,10 @@
 #define MCCONF_L_BATTERY_REGEN_CUT_END  1100.0		// Limit the regen current completely at this voltage
 #endif
 #ifndef MCCONF_L_RPM_MAX
-#define MCCONF_L_RPM_MAX				100000.0	// The motor speed limit (Upper)
+#define MCCONF_L_RPM_MAX				150000.0	// The motor speed limit (Upper)
 #endif
 #ifndef MCCONF_L_RPM_MIN
-#define MCCONF_L_RPM_MIN				-100000.0	// The motor speed limit (Lower)
+#define MCCONF_L_RPM_MIN				-150000.0	// The motor speed limit (Lower)
 #endif
 #ifndef MCCONF_L_RPM_START
 #define MCCONF_L_RPM_START				0.8		// Fraction of full speed where RPM current limiting starts
@@ -154,7 +154,7 @@
 #define MCCONF_S_PID_ALLOW_BRAKING		true	// Allow braking in speed control mode
 #endif
 #ifndef MCCONF_S_PID_RAMP_ERPMS_S
-#define MCCONF_S_PID_RAMP_ERPMS_S		25000.0	// Speed input ramping, in ERPM/s
+#define MCCONF_S_PID_RAMP_ERPMS_S		-1.0	// Speed input ramping, in ERPM/s
 #endif
 #ifndef MCCONF_S_PID_SPEED_SOURCE
 #define MCCONF_S_PID_SPEED_SOURCE		S_PID_SPEED_SRC_PLL
@@ -275,7 +275,7 @@
 #define MCCONF_FOC_ENCODER_RATIO		7.0
 #endif
 #ifndef MCCONF_FOC_SENSOR_MODE
-#define MCCONF_FOC_SENSOR_MODE			FOC_SENSOR_MODE_SENSORLESS
+#define MCCONF_FOC_SENSOR_MODE			FOC_SENSOR_MODE_ENCODER
 #endif
 #ifndef MCCONF_FOC_PLL_KP
 #define MCCONF_FOC_PLL_KP				2000.0
@@ -546,7 +546,7 @@
 #define MCCONF_M_ENCODER_SINCOS_PHASE		0.0		// Sin/Cos Encoder signal phase correction
 #endif
 #ifndef MCCONF_M_SENSOR_PORT_MODE
-#define MCCONF_M_SENSOR_PORT_MODE		SENSOR_PORT_MODE_HALL // The mode of the hall_encoder port
+#define MCCONF_M_SENSOR_PORT_MODE		SENSOR_PORT_MODE_AS5047_SPI // The mode of the hall_encoder port
 #endif
 #ifndef MCCONF_M_INVERT_DIRECTION
 #define MCCONF_M_INVERT_DIRECTION		false // Invert the motor direction

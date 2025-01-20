@@ -52,7 +52,7 @@
 #define APPCONF_KILL_SW_MODE				KILL_SW_MODE_DISABLED
 #endif
 #ifndef APPCONF_CAN_BAUD_RATE
-#define APPCONF_CAN_BAUD_RATE				CAN_BAUD_500K
+#define APPCONF_CAN_BAUD_RATE				CAN_BAUD_1M
 #endif
 #ifndef APPCONF_PAIRING_DONE
 #define APPCONF_PAIRING_DONE				false
@@ -64,13 +64,13 @@
 #define APPCONF_SHUTDOWN_MODE				SHUTDOWN_MODE_OFF_AFTER_30M
 #endif
 #ifndef APPCONF_CAN_STATUS_RATE_1
-#define APPCONF_CAN_STATUS_RATE_1			50
+#define APPCONF_CAN_STATUS_RATE_1			200
 #endif
 #ifndef APPCONF_CAN_STATUS_RATE_2
 #define APPCONF_CAN_STATUS_RATE_2			5
 #endif
 #ifndef APPCONF_CAN_STATUS_MSGS_R1
-#define APPCONF_CAN_STATUS_MSGS_R1			0
+#define APPCONF_CAN_STATUS_MSGS_R1			0b00011001
 #endif
 #ifndef APPCONF_CAN_STATUS_MSGS_R2
 #define APPCONF_CAN_STATUS_MSGS_R2			0
@@ -79,7 +79,7 @@
 // The default app is UART in case the UART port is used for
 // firmware updates.
 #ifndef APPCONF_APP_TO_USE
-#define APPCONF_APP_TO_USE					APP_UART
+#define APPCONF_APP_TO_USE					APP_NONE
 #endif
 
 // PPM app configureation
