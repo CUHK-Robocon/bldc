@@ -380,7 +380,7 @@ void foc_svm(float alpha, float beta, uint32_t PWMFullDutyCycle,
 void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *motor) {
 	mc_configuration *conf_now = motor->m_conf;
 
-	float angle_now = mcpwm_foc_get_pid_pos_full_now();
+	float angle_now = motor->m_pos_pid_set_full ? mcpwm_foc_get_pid_pos_full_now() : motor->m_pos_pid_now;
 	float angle_set = motor->m_pos_pid_set;
 
 	float p_term;
@@ -398,7 +398,7 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 	}
 
 	// Compute parameters
-	float error = angle_set - angle_now;
+	float error = motor->m_pos_pid_set_full ? angle_set - angle_now : utils_angle_difference(angle_set, angle_now);
 	float error_sign = 1.0;
 
 	if (conf_now->m_sensor_port_mode != SENSOR_PORT_MODE_HALL) {
@@ -451,7 +451,8 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 	if (angle_now == motor->m_pos_prev_proc) {
 		d_term_proc = 0.0;
 	} else {
-		d_term_proc = -(angle_now - motor->m_pos_prev_proc) * error_sign * (kd_proc / motor->m_pos_dt_int_proc);
+		float proc_diff = motor->m_pos_pid_set_full ? angle_now - motor->m_pos_prev_proc : utils_angle_difference(angle_now, motor->m_pos_prev_proc);
+		d_term_proc = -proc_diff * error_sign * (kd_proc / motor->m_pos_dt_int_proc);
 		motor->m_pos_dt_int_proc = 0.0;
 	}
 

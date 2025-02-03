@@ -151,6 +151,7 @@ typedef struct {
 	float m_openloop_phase;
 	foc_pwm_mode m_pwm_mode;
 	float m_pos_pid_set;
+	bool m_pos_pid_set_full;
 	float m_speed_pid_set_rpm;
 	float m_speed_command_rpm;
 	float m_phase_now_observer;

@@ -681,7 +681,7 @@ void mc_interface_set_pid_pos_full(float pos) {
 		break;
 
 	case MOTOR_TYPE_FOC:
-		mcpwm_foc_set_pid_pos(pos);
+		mcpwm_foc_set_pid_pos_full(pos);
 		break;
 
 	default:
