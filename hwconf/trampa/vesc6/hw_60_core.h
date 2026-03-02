@@ -210,7 +210,7 @@
 #ifdef HW60_IS_HP
 #define CURRENT_SHUNT_RES		0.0003
 #else
-#define CURRENT_SHUNT_RES		0.0005
+#define CURRENT_SHUNT_RES		0.0010
 #endif
 #endif
 
