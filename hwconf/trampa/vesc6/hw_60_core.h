@@ -34,6 +34,8 @@
 #else
 #define HW_NAME					"60_MK6"
 #endif
+#elif defined(HW60_IS_RMESC)
+#define HW_NAME					"60_RMESC"
 #elif defined(HW60_IS_MK1)
 #define HW_NAME					"60"
 #else
@@ -204,11 +206,17 @@
 #define VIN_R2					2200.0
 #endif
 #ifndef CURRENT_AMP_GAIN
+#ifdef HW60_IS_RMESC
+#define CURRENT_AMP_GAIN		50.0
+#else
 #define CURRENT_AMP_GAIN		20.0
+#endif
 #endif
 #ifndef CURRENT_SHUNT_RES
 #ifdef HW60_IS_HP
 #define CURRENT_SHUNT_RES		0.0003
+#elif defined(HW60_IS_RMESC)
+#define CURRENT_SHUNT_RES		0.0010
 #else
 #define CURRENT_SHUNT_RES		0.0005
 #endif
