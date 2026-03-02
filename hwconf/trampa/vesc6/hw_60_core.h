@@ -46,7 +46,7 @@
 // HW properties
 #define HW_HAS_DRV8301
 #define HW_HAS_3_SHUNTS
-#define HW_HAS_PHASE_SHUNTS
+#define HW_HAS_PHASE_SHUNTS true
 #if !defined(HW60_IS_MK3) && !defined(HW60_IS_MK4) && !defined(HW60_IS_MK5) && !defined(HW60_IS_MK6)
 #define HW_HAS_PERMANENT_NRF
 #endif
@@ -204,7 +204,7 @@
 #define VIN_R2					2200.0
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		50.0
 #endif
 #ifndef CURRENT_SHUNT_RES
 #ifdef HW60_IS_HP
@@ -413,7 +413,7 @@
 #define MCCONF_FOC_F_ZV					30000.0
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		150.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		60.0	// The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
 #define MCCONF_FOC_SAMPLE_V0_V7			false	// Run control loop in both v0 and v7 (requires phase shunts)

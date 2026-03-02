@@ -36,10 +36,10 @@
 
 // Limits
 #ifndef MCCONF_L_CURRENT_MAX
-#define MCCONF_L_CURRENT_MAX			60.0	// Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX			10.0	// Current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_CURRENT_MIN
-#define MCCONF_L_CURRENT_MIN			-60.0	// Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN			-5.0	// Current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
 #define MCCONF_L_IN_CURRENT_MAX			99.0	// Input current limit in Amperes (Upper)
@@ -54,7 +54,7 @@
 #define MCCONF_L_IN_CURRENT_MAP_FILTER	0.005	// Input current filter for the mapped limit
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		130.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		60.0	// The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_L_MIN_VOLTAGE
 #define MCCONF_L_MIN_VOLTAGE			8.0		// Minimum input voltage
@@ -528,16 +528,16 @@
 #define MCCONF_M_ENCODER_COUNTS			8192	// The number of encoder counts
 #endif
 #ifndef MCCONF_M_ENCODER_SIN_AMP
-#define MCCONF_M_ENCODER_SIN_AMP		1.0	// Sine amplitude
+#define MCCONF_M_ENCODER_SIN_AMP		0.6	// Sine amplitude
 #endif
 #ifndef MCCONF_M_ENCODER_SIN_OFFSET
-#define MCCONF_M_ENCODER_SIN_OFFSET		1.65 // Sine offset of the sin/cos encoder
+#define MCCONF_M_ENCODER_SIN_OFFSET		1.0 // Sine offset of the sin/cos encoder
 #endif
 #ifndef MCCONF_M_ENCODER_COS_AMP
-#define MCCONF_M_ENCODER_COS_AMP		1.0	// Cosine amplitude
+#define MCCONF_M_ENCODER_COS_AMP		0.6	// Cosine amplitude
 #endif
 #ifndef MCCONF_M_ENCODER_COS_OFFSET
-#define MCCONF_M_ENCODER_COS_OFFSET		1.65 // Cosine offset of the sin/cos encoder
+#define MCCONF_M_ENCODER_COS_OFFSET		1.0 // Cosine offset of the sin/cos encoder
 #endif
 #ifndef MCCONF_M_ENCODER_SINCOS_FILTER
 #define MCCONF_M_ENCODER_SINCOS_FILTER	0.5		// Sin/Cos Encoder signal filter constant
@@ -546,7 +546,7 @@
 #define MCCONF_M_ENCODER_SINCOS_PHASE		0.0		// Sin/Cos Encoder signal phase correction
 #endif
 #ifndef MCCONF_M_SENSOR_PORT_MODE
-#define MCCONF_M_SENSOR_PORT_MODE		SENSOR_PORT_MODE_AS5047_SPI // The mode of the hall_encoder port
+#define MCCONF_M_SENSOR_PORT_MODE		SENSOR_PORT_MODE_SINCOS // The mode of the hall_encoder port
 #endif
 #ifndef MCCONF_M_INVERT_DIRECTION
 #define MCCONF_M_INVERT_DIRECTION		false // Invert the motor direction
