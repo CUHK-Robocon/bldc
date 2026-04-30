@@ -34,6 +34,8 @@
 #else
 #define HW_NAME					"60_MK6"
 #endif
+#elif defined(HW60_IS_RMESC)
+#define HW_NAME					"60_RMESC"
 #elif defined(HW60_IS_MK1)
 #define HW_NAME					"60"
 #else
@@ -46,7 +48,11 @@
 // HW properties
 #define HW_HAS_DRV8301
 #define HW_HAS_3_SHUNTS
+#ifdef HW60_IS_RMESC
 #define HW_HAS_PHASE_SHUNTS true
+#else
+#define HW_HAS_PHASE_SHUNTS
+#endif
 #if !defined(HW60_IS_MK3) && !defined(HW60_IS_MK4) && !defined(HW60_IS_MK5) && !defined(HW60_IS_MK6)
 #define HW_HAS_PERMANENT_NRF
 #endif
@@ -204,13 +210,19 @@
 #define VIN_R2					2200.0
 #endif
 #ifndef CURRENT_AMP_GAIN
+#ifdef HW60_IS_RMESC
 #define CURRENT_AMP_GAIN		50.0
+#else
+#define CURRENT_AMP_GAIN		20.0
+#endif
 #endif
 #ifndef CURRENT_SHUNT_RES
 #ifdef HW60_IS_HP
 #define CURRENT_SHUNT_RES		0.0003
-#else
+#elif defined(HW60_IS_RMESC)
 #define CURRENT_SHUNT_RES		0.0010
+#else
+#define CURRENT_SHUNT_RES		0.0005
 #endif
 #endif
 
@@ -410,10 +422,14 @@
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV					40000.0
+#define MCCONF_FOC_F_ZV					30000.0
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
+#ifdef HW60_IS_RMESC
 #define MCCONF_L_MAX_ABS_CURRENT		60.0	// The maximum absolute current above which a fault is generated
+#else
+#define MCCONF_L_MAX_ABS_CURRENT		150.0	// The maximum absolute current above which a fault is generated
+#endif
 #endif
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
 #define MCCONF_FOC_SAMPLE_V0_V7			false	// Run control loop in both v0 and v7 (requires phase shunts)

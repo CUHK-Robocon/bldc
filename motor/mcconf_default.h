@@ -36,10 +36,10 @@
 
 // Limits
 #ifndef MCCONF_L_CURRENT_MAX
-#define MCCONF_L_CURRENT_MAX			10.0	// Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX			60.0	// Current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_CURRENT_MIN
-#define MCCONF_L_CURRENT_MIN			-5.0	// Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN			-60.0	// Current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
 #define MCCONF_L_IN_CURRENT_MAX			99.0	// Input current limit in Amperes (Upper)
@@ -54,7 +54,7 @@
 #define MCCONF_L_IN_CURRENT_MAP_FILTER	0.005	// Input current filter for the mapped limit
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		30.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		130.0	// The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_L_MIN_VOLTAGE
 #define MCCONF_L_MIN_VOLTAGE			8.0		// Minimum input voltage
@@ -75,10 +75,10 @@
 #define MCCONF_L_BATTERY_REGEN_CUT_END  1100.0		// Limit the regen current completely at this voltage
 #endif
 #ifndef MCCONF_L_RPM_MAX
-#define MCCONF_L_RPM_MAX				120000.0	// The motor speed limit (Upper)
+#define MCCONF_L_RPM_MAX				150000.0	// The motor speed limit (Upper)
 #endif
 #ifndef MCCONF_L_RPM_MIN
-#define MCCONF_L_RPM_MIN				-120000.0	// The motor speed limit (Lower)
+#define MCCONF_L_RPM_MIN				-150000.0	// The motor speed limit (Lower)
 #endif
 #ifndef MCCONF_L_RPM_START
 #define MCCONF_L_RPM_START				0.8		// Fraction of full speed where RPM current limiting starts
@@ -260,7 +260,7 @@
 #define MCCONF_FOC_CURRENT_KI			50.0
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV					40000.0
+#define MCCONF_FOC_F_ZV					25000.0
 #endif
 #ifndef MCCONF_FOC_DT_US
 #define MCCONF_FOC_DT_US				0.12 // Microseconds for dead time compensation
@@ -528,16 +528,16 @@
 #define MCCONF_M_ENCODER_COUNTS			8192	// The number of encoder counts
 #endif
 #ifndef MCCONF_M_ENCODER_SIN_AMP
-#define MCCONF_M_ENCODER_SIN_AMP		0.6	// Sine amplitude
+#define MCCONF_M_ENCODER_SIN_AMP		1.0	// Sine amplitude
 #endif
 #ifndef MCCONF_M_ENCODER_SIN_OFFSET
-#define MCCONF_M_ENCODER_SIN_OFFSET		1.0 // Sine offset of the sin/cos encoder
+#define MCCONF_M_ENCODER_SIN_OFFSET		1.65 // Sine offset of the sin/cos encoder
 #endif
 #ifndef MCCONF_M_ENCODER_COS_AMP
-#define MCCONF_M_ENCODER_COS_AMP		0.6	// Cosine amplitude
+#define MCCONF_M_ENCODER_COS_AMP		1.0	// Cosine amplitude
 #endif
 #ifndef MCCONF_M_ENCODER_COS_OFFSET
-#define MCCONF_M_ENCODER_COS_OFFSET		1.0 // Cosine offset of the sin/cos encoder
+#define MCCONF_M_ENCODER_COS_OFFSET		1.65 // Cosine offset of the sin/cos encoder
 #endif
 #ifndef MCCONF_M_ENCODER_SINCOS_FILTER
 #define MCCONF_M_ENCODER_SINCOS_FILTER	0.5		// Sin/Cos Encoder signal filter constant
@@ -546,7 +546,7 @@
 #define MCCONF_M_ENCODER_SINCOS_PHASE		0.0		// Sin/Cos Encoder signal phase correction
 #endif
 #ifndef MCCONF_M_SENSOR_PORT_MODE
-#define MCCONF_M_SENSOR_PORT_MODE		SENSOR_PORT_MODE_SINCOS // The mode of the hall_encoder port
+#define MCCONF_M_SENSOR_PORT_MODE		SENSOR_PORT_MODE_AS5047_SPI // The mode of the hall_encoder port
 #endif
 #ifndef MCCONF_M_INVERT_DIRECTION
 #define MCCONF_M_INVERT_DIRECTION		false // Invert the motor direction
