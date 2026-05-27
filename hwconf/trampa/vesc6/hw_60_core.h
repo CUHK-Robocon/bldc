@@ -48,11 +48,7 @@
 // HW properties
 #define HW_HAS_DRV8301
 #define HW_HAS_3_SHUNTS
-#ifdef HW60_IS_RMESC
-#define HW_HAS_PHASE_SHUNTS true
-#else
 #define HW_HAS_PHASE_SHUNTS
-#endif
 #if !defined(HW60_IS_MK3) && !defined(HW60_IS_MK4) && !defined(HW60_IS_MK5) && !defined(HW60_IS_MK6)
 #define HW_HAS_PERMANENT_NRF
 #endif
