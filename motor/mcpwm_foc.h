@@ -1,5 +1,6 @@
 /*
 	Copyright 2016 - 2020 Benjamin Vedder	benjamin@vedder.se
+	Copyright (C) 2024  Yau-ming Leung
 
 	This file is part of the VESC firmware.
 
