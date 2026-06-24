@@ -1,5 +1,6 @@
 /*
 	Copyright 2012-2022 Benjamin Vedder	benjamin@vedder.se
+	Copyright (C) 2026  Yau-ming Leung
 
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -153,7 +154,11 @@ void hw_init_gpio(void) {
 	DAC->DHR12R1 = 2047;
 #endif
 
+#ifdef HW60_IS_BANANA
+	drv8323s_init();
+#else
 	drv8301_init();
+#endif
 
 #if defined(HW60_IS_MK3) || defined(HW60_IS_MK4) || defined(HW60_IS_MK5) || defined(HW60_IS_MK6)
 	terminal_register_command_callback(

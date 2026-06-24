@@ -1,5 +1,6 @@
 /*
 	Copyright 2016 - 2022 Benjamin Vedder	benjamin@vedder.se
+	Copyright (C) 2026  Yau-ming Leung
 
 	This file is part of the VESC firmware.
 
@@ -36,6 +37,8 @@
 #endif
 #elif defined(HW60_IS_MK1)
 #define HW_NAME					"60"
+#elif defined(HW60_IS_BANANA)
+#define HW_NAME					"60_BANANA"
 #else
 #error "Must include hardware type"
 #endif
@@ -44,11 +47,24 @@
 #define HW_MINOR				0
 
 // HW properties
+#ifdef HW60_IS_BANANA
+#define HW_HAS_DRV8323S
+#else
 #define HW_HAS_DRV8301
+#endif
 #define HW_HAS_3_SHUNTS
 #define HW_HAS_PHASE_SHUNTS
 #if !defined(HW60_IS_MK3) && !defined(HW60_IS_MK4) && !defined(HW60_IS_MK5) && !defined(HW60_IS_MK6)
 #define HW_HAS_PERMANENT_NRF
+#endif
+
+#ifdef HW60_IS_BANANA
+// TODO(ymleung314): Unverified, probably should fine-tune this later.
+// Reg 0x03: (HS) 370mA src, 2000mA sink.
+// Reg 0x04: (LS) TDRIVE 4us, 370mA src, 2000mA sink.
+#define DRV8323S_CUSTOM_SETTINGS()	drv8323s_set_current_amp_gain(CURRENT_AMP_GAIN); \
+									drv8323s_write_reg(3, 0x03AF); \
+									drv8323s_write_reg(4, 0x07AF);
 #endif
 
 // Macros
@@ -209,6 +225,9 @@
 #ifndef CURRENT_SHUNT_RES
 #ifdef HW60_IS_HP
 #define CURRENT_SHUNT_RES		0.0003
+#elif defined(HW60_IS_BANANA)
+// For CURRENT_AMP_GAIN = 20.0, current sensing saturates at around +/-80A.
+#define CURRENT_SHUNT_RES		0.001
 #else
 #define CURRENT_SHUNT_RES		0.0005
 #endif
@@ -339,7 +358,16 @@
 #endif
 
 // SPI for DRV8301
-#if !defined(HW60_IS_MK3) && !defined(HW60_IS_MK4) && !defined(HW60_IS_MK5) && !defined(HW60_IS_MK6)
+#if defined(HW60_IS_BANANA)
+#define DRV8323S_MOSI_GPIO		GPIOC
+#define DRV8323S_MOSI_PIN		12
+#define DRV8323S_MISO_GPIO		GPIOC
+#define DRV8323S_MISO_PIN		11
+#define DRV8323S_SCK_GPIO		GPIOC
+#define DRV8323S_SCK_PIN		10
+#define DRV8323S_CS_GPIO		GPIOC
+#define DRV8323S_CS_PIN			9
+#elif !defined(HW60_IS_MK3) && !defined(HW60_IS_MK4) && !defined(HW60_IS_MK5) && !defined(HW60_IS_MK6)
 #define DRV8301_MOSI_GPIO		GPIOC
 #define DRV8301_MOSI_PIN		12
 #define DRV8301_MISO_GPIO		GPIOC
@@ -413,7 +441,12 @@
 #define MCCONF_FOC_F_ZV					30000.0
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
+#ifdef HW60_IS_BANANA
+// Must be below ~80A (for the current amp gain of 20).
+#define MCCONF_L_MAX_ABS_CURRENT		60.0	// The maximum absolute current above which a fault is generated
+#else
 #define MCCONF_L_MAX_ABS_CURRENT		150.0	// The maximum absolute current above which a fault is generated
+#endif
 #endif
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
 #define MCCONF_FOC_SAMPLE_V0_V7			false	// Run control loop in both v0 and v7 (requires phase shunts)
@@ -427,6 +460,17 @@
 #ifndef MCCONF_M_DRV8301_OC_ADJ
 #define MCCONF_M_DRV8301_OC_ADJ	19 // DRV8301 over current protection threshold
 #endif
+#elif defined(HW60_IS_BANANA)
+// 1W shunt resistors are used. At 25A, around 0.625W runs through the shunt resistor.
+// So this should be pretty comfortable.
+#define HW_LIM_CURRENT			-25.0, 25.0
+#define HW_LIM_CURRENT_IN		-25.0, 25.0
+// Must be below ~80A (for the current amp gain of 20).
+#define HW_LIM_CURRENT_ABS		0.0, 60.0
+// TODO(ymleugn314): See if we should raise the OCP level.
+//#ifndef MCCONF_M_DRV8301_OC_ADJ
+//#define MCCONF_M_DRV8301_OC_ADJ	19 // DRV8323S over current protection threshold
+//#endif
 #else
 #define HW_LIM_CURRENT			-120.0, 120.0
 #define HW_LIM_CURRENT_IN		-120.0, 120.0
@@ -437,6 +481,11 @@
 #define HW_LIM_DUTY_MIN			0.0, 0.1
 #define HW_LIM_DUTY_MAX			0.0, 0.99
 #define HW_LIM_TEMP_FET			-40.0, 110.0
+
+#ifdef HW60_IS_BANANA
+// Just to be more conservative.
+#define HW_DEAD_TIME_NSEC		660
+#endif
 
 // Functions
 #if defined(HW60_IS_MK3) || defined(HW60_IS_MK4) || defined(HW60_IS_MK5) || defined(HW60_IS_MK6)
