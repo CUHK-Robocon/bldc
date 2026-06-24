@@ -1,5 +1,6 @@
 /*
 	Copyright 2016 - 2019 Benjamin Vedder	benjamin@vedder.se
+	Copyright (C) 2026  Yau-ming Leung
 
 	This file is part of the VESC firmware.
 
@@ -545,6 +546,12 @@
 #ifndef MCCONF_M_ENCODER_SINCOS_PHASE
 #define MCCONF_M_ENCODER_SINCOS_PHASE		0.0		// Sin/Cos Encoder signal phase correction
 #endif
+
+// Not viewable/changeable/etc. via VESC Tool, update hwconf instead.
+#ifndef MCCONF_M_ENCODER_SINCOS_FAULT_RATE
+#define MCCONF_M_ENCODER_SINCOS_FAULT_RATE		0.05
+#endif
+
 #ifndef MCCONF_M_SENSOR_PORT_MODE
 #define MCCONF_M_SENSOR_PORT_MODE		SENSOR_PORT_MODE_AS5047_SPI // The mode of the hall_encoder port
 #endif

@@ -1,6 +1,8 @@
 /*
 	Copyright 2016 - 2022 Benjamin Vedder	benjamin@vedder.se
 	Copyright 2022 Jakub Tomczak
+	Copyright (C) 2026  Roger Li
+	Copyright (C) 2026  Yau-ming Leung
 
 	This file is part of the VESC firmware.
 
@@ -532,10 +534,10 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 			break;
 
 		case SENSOR_PORT_MODE_SINCOS:
-			if (encoder_cfg_sincos.state.signal_low_error_rate > 0.10) {
+			if (encoder_cfg_sincos.state.signal_low_error_rate > MCCONF_M_ENCODER_SINCOS_FAULT_RATE) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SINCOS_BELOW_MIN_AMPLITUDE, is_second_motor, false);
 			}
-			if (encoder_cfg_sincos.state.signal_above_max_error_rate > 0.10) {
+			if (encoder_cfg_sincos.state.signal_above_max_error_rate > MCCONF_M_ENCODER_SINCOS_FAULT_RATE) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SINCOS_ABOVE_MAX_AMPLITUDE, is_second_motor, false);
 			}
 			break;
