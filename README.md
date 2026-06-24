@@ -14,7 +14,7 @@ Check the supported boards by typing `make`
                             supported boards are: 100_250 100_250_no_limits 100_500...
 ```
 
-The current main development target is `60`.
+The current main development targets are `60`, `60_rmesc`.
 
 ## Prerequisites
 
@@ -36,6 +36,6 @@ For this project, development is done mainly on Linux. Thus, Windows & macOS ins
 1. `git clone https://github.com/CUHK-Robocon/bldc.git`
 2. `cd bldc`
 3. `make arm_sdk_install`
-4. `make 60` (check available targets with `make` as described above)
+4. `make 60 -j` (check available targets with `make` as described above)
 
 Check `build/60` for binaries.
