@@ -17,7 +17,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma GCC push_options
 #pragma GCC optimize ("Os")
 
 #include <string.h>
@@ -407,6 +406,29 @@ uavcan_cmd_info canard_driver_last_rpmcmd(int can_if) {
 #endif
 
 	return res;
+}
+
+int16_t canard_process_frame(CANRxFrame *msg, int interface) {
+	CanardCANFrame rx_frame;
+
+	if (msg->IDE == CAN_IDE_EXT) {
+		rx_frame.id = msg->EID | CANARD_CAN_FRAME_EFF;
+	} else {
+		rx_frame.id = msg->SID;
+	}
+
+	rx_frame.data_len = msg->DLC;
+	memcpy(rx_frame.data, msg->data8, msg->DLC);
+
+	if (interface == 1) {
+		return canardHandleRxFrame(&canard_ins, &rx_frame, ST2US(chVTGetSystemTimeX()));
+	} else {
+#ifdef HW_CAN2_DEV
+		return canardHandleRxFrame(&canard_ins_if2, &rx_frame, ST2US(chVTGetSystemTimeX()));
+#endif
+	}
+
+	return -CANARD_ERROR_INVALID_ARGUMENT;
 }
 
 /*
@@ -1322,7 +1344,7 @@ static THD_FUNCTION(canard_thread, arg) {
 	for (;;) {
 		const app_configuration *conf = app_get_configuration();
 
-		if (conf->can_mode != CAN_MODE_UAVCAN) {
+		if (conf->can_mode != CAN_MODE_UAVCAN && conf->can_mode != CAN_MODE_VESC_UAVCAN) {
 			chThdSleepMilliseconds(100);
 			was_running = false;
 			continue;
@@ -1358,20 +1380,11 @@ static THD_FUNCTION(canard_thread, arg) {
 		canardSetLocalNodeID(&canard_ins_if2, conf->controller_id);
 #endif
 
-		CANRxFrame *rxmsg;
-		while ((rxmsg = comm_can_get_rx_frame(1)) != 0) {
-			CanardCANFrame rx_frame;
-
-			if (rxmsg->IDE == CAN_IDE_EXT) {
-				rx_frame.id = rxmsg->EID | CANARD_CAN_FRAME_EFF;
-			} else {
-				rx_frame.id = rxmsg->SID;
+		if (conf->can_mode == CAN_MODE_UAVCAN) {
+			CANRxFrame *rxmsg;
+			while ((rxmsg = comm_can_get_rx_frame(1)) != 0) {
+				canard_process_frame(rxmsg, 1);
 			}
-
-			rx_frame.data_len = rxmsg->DLC;
-			memcpy(rx_frame.data, rxmsg->data8, rxmsg->DLC);
-
-			canardHandleRxFrame(&canard_ins, &rx_frame, ST2US(chVTGetSystemTimeX()));
 		}
 
 		for (const CanardCANFrame* txf = NULL; (txf = canardPeekTxQueue(&canard_ins)) != NULL;) {
@@ -1380,19 +1393,11 @@ static THD_FUNCTION(canard_thread, arg) {
 		}
 
 #ifdef HW_CAN2_DEV
-		while ((rxmsg = comm_can_get_rx_frame(2)) != 0) {
-			CanardCANFrame rx_frame;
-
-			if (rxmsg->IDE == CAN_IDE_EXT) {
-				rx_frame.id = rxmsg->EID | CANARD_CAN_FRAME_EFF;
-			} else {
-				rx_frame.id = rxmsg->SID;
+		if (conf->can_mode == CAN_MODE_UAVCAN) {
+			CANRxFrame *rxmsg;
+			while ((rxmsg = comm_can_get_rx_frame(2)) != 0) {
+				canard_process_frame(rxmsg, 2);
 			}
-
-			rx_frame.data_len = rxmsg->DLC;
-			memcpy(rx_frame.data, rxmsg->data8, rxmsg->DLC);
-
-			canardHandleRxFrame(&canard_ins_if2, &rx_frame, ST2US(chVTGetSystemTimeX()));
 		}
 
 		for (const CanardCANFrame* txf = NULL; (txf = canardPeekTxQueue(&canard_ins_if2)) != NULL;) {
@@ -1470,5 +1475,3 @@ static THD_FUNCTION(canard_thread, arg) {
 		chThdSleepMilliseconds(1);
 	}
 }
-
-#pragma GCC pop_options

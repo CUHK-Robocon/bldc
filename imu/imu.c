@@ -49,6 +49,28 @@ static bool imu_ready;
 static Biquad acc_x_biquad, acc_y_biquad, acc_z_biquad, gyro_x_biquad, gyro_y_biquad, gyro_z_biquad;
 static char *m_imu_type_internal = "Unknown";
 
+#define SPI_BaudRatePrescaler_2         ((uint16_t)0x0000) //  42 MHz      21 MHZ
+#define SPI_BaudRatePrescaler_4         ((uint16_t)0x0008) //  21 MHz      10.5 MHz
+#define SPI_BaudRatePrescaler_8         ((uint16_t)0x0010) //  10.5 MHz    5.25 MHz
+#define SPI_BaudRatePrescaler_16        ((uint16_t)0x0018) //  5.25 MHz    2.626 MHz
+#define SPI_BaudRatePrescaler_32        ((uint16_t)0x0020) //  2.626 MHz   1.3125 MHz
+#define SPI_BaudRatePrescaler_64        ((uint16_t)0x0028) //  1.3125 MHz  656.25 KHz
+#define SPI_BaudRatePrescaler_128       ((uint16_t)0x0030) //  656.25 KHz  328.125 KHz
+#define SPI_BaudRatePrescaler_256       ((uint16_t)0x0038) //  328.125 KHz 164.06 KHz
+#define SPI_DATASIZE_8BIT				0
+#define SPI_DATASIZE_16BIT				SPI_CR1_DFF
+#define SPI_MODE_0						0
+#define SPI_MODE_1						SPI_CR1_CPHA
+#define SPI_MODE_2						SPI_CR1_CPOL
+#define SPI_MODE_3						SPI_CR1_CPOL | SPI_CR1_CPHA
+
+#ifdef LSM6DS3_HWSPI_DEV
+static SPIConfig m_lsm6ds3_hw_spi_cfg = {
+		NULL, LSM6DS3_NSS_GPIO, LSM6DS3_NSS_PIN,
+		SPI_BaudRatePrescaler_16 | SPI_MODE_3 | SPI_DATASIZE_8BIT
+};
+#endif
+
 // Private functions
 static void imu_read_callback(float *accel, float *gyro, float *mag);
 static int8_t user_i2c_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint16_t len);
@@ -62,7 +84,7 @@ static void (*m_read_callback)(float *acc, float *gyro, float *mag, float dt) = 
 
 void imu_init(imu_config *set) {
 	bool imu_changed = set->sample_rate_hz != m_settings.sample_rate_hz ||
-			set->type != m_settings.type;
+			set->type != m_settings.type || set->filter != m_settings.filter;
 
 	m_settings = *set;
 
@@ -86,9 +108,6 @@ void imu_init(imu_config *set) {
 		biquad_config(&gyro_y_biquad, BQ_LOWPASS, fc);
 		biquad_config(&gyro_z_biquad, BQ_LOWPASS, fc);
 	}
-
-
-	imu_ready = false;
 
 	if (!imu_changed) {
 		return;
@@ -131,7 +150,20 @@ void imu_init(imu_config *set) {
 		m_imu_type_internal = "LSM6DS3";
 #endif
 
-		// SPI not implemented yet, use as I2C
+#ifdef LSM6DS3_USE_SPI
+#ifdef LSM6DS3_NSS_GPIO
+		imu_init_lsm6ds3_spi(
+				LSM6DS3_NSS_GPIO, LSM6DS3_NSS_PIN,
+				LSM6DS3_SCK_GPIO, LSM6DS3_SCK_PIN,
+				LSM6DS3_MOSI_GPIO, LSM6DS3_MOSI_PIN,
+				LSM6DS3_MISO_GPIO, LSM6DS3_MISO_PIN);
+#ifdef LSM6DS3_HWSPI_DEV
+		m_imu_type_internal = "LSM6DS3_SPI_HW";
+#else
+		m_imu_type_internal = "LSM6DS3_SPI";
+#endif
+#endif
+#else
 #ifdef LSM6DS3_NSS_GPIO
 		palSetPadMode(LSM6DS3_NSS_GPIO, LSM6DS3_NSS_PIN, PAL_MODE_OUTPUT_PUSHPULL);
 		palSetPad(LSM6DS3_NSS_GPIO, LSM6DS3_NSS_PIN);
@@ -140,6 +172,7 @@ void imu_init(imu_config *set) {
 		imu_init_lsm6ds3(LSM6DS3_MOSI_GPIO, LSM6DS3_MOSI_PIN,
 				LSM6DS3_SCK_GPIO, LSM6DS3_SCK_PIN);
 		m_imu_type_internal = "LSM6DS3";
+#endif
 #endif
 
 #ifdef BMI160_SPI_PORT_NSS
@@ -255,7 +288,6 @@ void imu_init_bmi160_spi(stm32_gpio_t *nss_gpio, int nss_pin,
 	m_bmi_state.sensor.write = user_spi_write;
 
 	bmi160_wrapper_init(&m_bmi_state, m_thd_work_area, sizeof(m_thd_work_area));
-
 	bmi160_wrapper_set_read_callback(&m_bmi_state, imu_read_callback);
 }
 
@@ -266,12 +298,54 @@ void imu_init_lsm6ds3(stm32_gpio_t *sda_gpio, int sda_pin,
 	m_i2c_bb.sda_pin = sda_pin;
 	m_i2c_bb.scl_gpio = scl_gpio;
 	m_i2c_bb.scl_pin = scl_pin;
+
+#ifdef LSM6DS3_SPEED_700KHZ
+	m_i2c_bb.rate = I2C_BB_RATE_700K;
+	commands_printf("LSM6DS3 speed: 700 kHz");
+#else
 	m_i2c_bb.rate = I2C_BB_RATE_400K;
+	commands_printf("LSM6DS3 speed: 400 kHz");
+#endif
+
 	i2c_bb_init(&m_i2c_bb);
 
-	lsm6ds3_init(&m_i2c_bb, m_thd_work_area, sizeof(m_thd_work_area));
+	lsm6ds3_init(&m_i2c_bb, NULL, NULL, m_thd_work_area, sizeof(m_thd_work_area));
 	lsm6ds3_set_read_callback(imu_read_callback);
+}
 
+void imu_init_lsm6ds3_spi(stm32_gpio_t *nss_gpio, int nss_pin,
+		stm32_gpio_t *sck_gpio, int sck_pin, stm32_gpio_t *mosi_gpio, int mosi_pin,
+		stm32_gpio_t *miso_gpio, int miso_pin) {
+	imu_stop();
+
+#ifdef LSM6DS3_HWSPI_DEV
+	palSetPadMode(nss_gpio, nss_pin,
+			PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+	palSetPadMode(sck_gpio, sck_pin,
+			PAL_MODE_ALTERNATE(LSM6DS3_HWSPI_AF) | PAL_STM32_OSPEED_HIGHEST);
+	palSetPadMode(mosi_gpio, mosi_pin,
+			PAL_MODE_ALTERNATE(LSM6DS3_HWSPI_AF) | PAL_STM32_OSPEED_HIGHEST);
+	palSetPadMode(miso_gpio, miso_pin,
+			PAL_MODE_ALTERNATE(LSM6DS3_HWSPI_AF) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUDR_FLOATING);
+
+	spiStart(&LSM6DS3_HWSPI_DEV, &m_lsm6ds3_hw_spi_cfg);
+
+	lsm6ds3_init(NULL, NULL, &LSM6DS3_HWSPI_DEV, m_thd_work_area, sizeof(m_thd_work_area));
+#else
+	m_spi_bb.nss_gpio = nss_gpio;
+	m_spi_bb.nss_pin = nss_pin;
+	m_spi_bb.sck_gpio = sck_gpio;
+	m_spi_bb.sck_pin = sck_pin;
+	m_spi_bb.mosi_gpio = mosi_gpio;
+	m_spi_bb.mosi_pin = mosi_pin;
+	m_spi_bb.miso_gpio = miso_gpio;
+	m_spi_bb.miso_pin = miso_pin;
+
+	spi_bb_init(&m_spi_bb);
+	lsm6ds3_init(NULL, &m_spi_bb, NULL, m_thd_work_area, sizeof(m_thd_work_area));
+#endif
+
+	lsm6ds3_set_read_callback(imu_read_callback);
 }
 
 void imu_stop(void) {
@@ -279,6 +353,10 @@ void imu_stop(void) {
 	icm20948_stop(&m_icm20948_state);
 	bmi160_wrapper_stop(&m_bmi_state);
 	lsm6ds3_stop();
+
+#ifdef LSM6DS3_HWSPI_DEV
+	spiStop(&LSM6DS3_HWSPI_DEV);
+#endif
 }
 
 bool imu_startup_done(void) {
@@ -313,7 +391,7 @@ void imu_get_mag(float *mag) {
 	memcpy(mag, m_mag, sizeof(m_mag));
 }
 
-void imu_derotate(float *input, float *output) {
+void imu_derotate(const float *input, float *output) {
 	float rpy[3];
 	imu_get_rpy(rpy);
 
@@ -517,6 +595,22 @@ static void imu_read_callback(float *accel, float *gyro, float *mag) {
 		imu_ready = true;
 	}
 
+#ifdef IMU_CUSTOM_FUNC
+	IMU_CUSTOM_FUNC;
+#endif // IMU_CUSTOM_FUNC
+
+#ifdef IMU_ROT_Y_270
+	float a2_old = accel[2];
+	float g2_old = gyro[2];
+	float m2_old = mag[2];
+	accel[2] = accel[0];
+	accel[0] = -a2_old;
+	gyro[2] = gyro[0];
+	gyro[0] = -g2_old;
+	mag[2] = mag[0];
+	mag[0] = -m2_old;
+#endif
+
 #ifdef IMU_FLIP
 	accel[0] *= -1.0;
 	accel[2] *= -1.0;
@@ -545,6 +639,18 @@ static void imu_read_callback(float *accel, float *gyro, float *mag) {
 	gyro[1] = -g0_old;
 	mag[0] = mag[1];
 	mag[1] = -m0_old;
+#endif
+
+#ifdef IMU_ROT_270
+	float a0_old = accel[0];
+	float g0_old = gyro[0];
+	float m0_old = mag[0];
+	accel[0] = -accel[1];
+	accel[1] = a0_old;
+	gyro[0] = -gyro[1];
+	gyro[1] = g0_old;
+	mag[0] = -mag[1];
+	mag[1] = m0_old;
 #endif
 
 	// Rotate axes (ZYX)

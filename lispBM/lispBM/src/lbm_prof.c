@@ -22,7 +22,7 @@ static lbm_uint num_samples = 0;
 static lbm_uint num_system_samples = 0;
 static lbm_uint num_sleep_samples = 0;
 extern eval_context_t *ctx_running;
-extern mutex_t qmutex;
+extern lbm_mutex_t qmutex;
 extern bool    qmutex_initialized;
 extern volatile bool lbm_system_sleeping;
 
@@ -45,6 +45,7 @@ bool lbm_prof_init(lbm_prof_t *prof_data_buf,
       memset(&prof_data_buf[i].name, 0, LBM_PROF_MAX_NAME_SIZE);
       prof_data_buf[i].count = 0;
     }
+    return true;
   }
   return false;
 }
@@ -66,7 +67,7 @@ void lbm_prof_sample(void) {
 
   // Lock mutex so context cannot be destroyed until
   // we are done storing a sample.
-  mutex_lock(&qmutex);
+  lbm_mutex_lock(&qmutex);
   eval_context_t *curr = ctx_running;
   if (curr != NULL) {
     lbm_cid id = curr->id;
@@ -114,5 +115,5 @@ void lbm_prof_sample(void) {
       num_system_samples ++;
     }
   }
-  mutex_unlock(&qmutex);
+  lbm_mutex_unlock(&qmutex);
 }

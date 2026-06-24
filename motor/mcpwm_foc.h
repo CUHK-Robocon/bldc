@@ -23,6 +23,7 @@
 
 #include "conf_general.h"
 #include "datatypes.h"
+#include "foc_math.h"
 #include <stdbool.h>
 
 // Functions
@@ -48,9 +49,12 @@ void mcpwm_foc_set_openloop_current(float current, float rpm);
 void mcpwm_foc_set_openloop_phase(float current, float phase);
 void mcpwm_foc_set_openloop_duty(float dutyCycle, float rpm);
 void mcpwm_foc_set_openloop_duty_phase(float dutyCycle, float phase);
+void mcpwm_foc_set_fw_override(float current);
 int mcpwm_foc_set_tachometer_value(int steps);
 float mcpwm_foc_get_duty_cycle_set(void);
 float mcpwm_foc_get_duty_cycle_now(void);
+float mcpwm_foc_get_duty_cycle_abs_filter(void);
+float mcpwm_foc_get_pid_speed_set(void);
 float mcpwm_foc_get_pid_pos_set(void);
 float mcpwm_foc_get_pid_pos_now(void);
 float mcpwm_foc_get_pid_pos_full_now(void);
@@ -71,6 +75,8 @@ float mcpwm_foc_get_id(void);
 float mcpwm_foc_get_iq(void);
 float mcpwm_foc_get_id_set(void);
 float mcpwm_foc_get_iq_set(void);
+float mcpwm_foc_get_id_target(void);
+float mcpwm_foc_get_iq_target(void);
 float mcpwm_foc_get_id_filter(void);
 float mcpwm_foc_get_iq_filter(void);
 float mcpwm_foc_get_tot_current_in(void);
@@ -79,6 +85,7 @@ int mcpwm_foc_get_tachometer_value(bool reset);
 int mcpwm_foc_get_tachometer_abs_value(bool reset);
 float mcpwm_foc_get_phase(void);
 float mcpwm_foc_get_phase_observer(void);
+float mcpwm_foc_get_phase_bemf(void);
 float mcpwm_foc_get_phase_encoder(void);
 float mcpwm_foc_get_phase_hall(void);
 float mcpwm_foc_get_vd(void);
@@ -87,9 +94,12 @@ float mcpwm_foc_get_mod_alpha_raw(void);
 float mcpwm_foc_get_mod_beta_raw(void);
 float mcpwm_foc_get_mod_alpha_measured(void);
 float mcpwm_foc_get_mod_beta_measured(void);
+float mcpwm_foc_get_v_alpha(void);
+float mcpwm_foc_get_v_beta(void);
 float mcpwm_foc_get_est_lambda(void);
 float mcpwm_foc_get_est_res(void);
 float mcpwm_foc_get_est_ind(void);
+volatile const hfi_state_t *mcpwm_foc_get_hfi_state(void);
 int mcpwm_foc_encoder_detect(float current, bool print, float *offset, float *ratio, bool *inverted);
 int mcpwm_foc_measure_resistance(float current, int samples, bool stop_after, float *resistance);
 int mcpwm_foc_measure_inductance(float duty, int samples, float *curr, float *ld_lq_diff, float *inductance);
@@ -99,7 +109,7 @@ int mcpwm_foc_measure_inductance_current(float curr_goal, int samples, float *cu
 bool mcpwm_foc_beep(float freq, float time, float voltage);
 bool mcpwm_foc_play_tone(int channel, float freq, float voltage);
 void mcpwm_foc_stop_audio(bool reset);
-bool mcpwm_foc_set_audio_sample_table(int channel, float *samples, int len);
+bool mcpwm_foc_set_audio_sample_table(int channel, const float *samples, int len);
 const float *mcpwm_foc_get_audio_sample_table(int channel);
 bool mcpwm_foc_play_audio_samples(const int8_t *samples, int num_samp, float f_samp, float voltage);
 
@@ -107,7 +117,6 @@ int mcpwm_foc_measure_res_ind(float *res, float *ind, float *ld_lq_diff);
 int mcpwm_foc_hall_detect(float current, uint8_t *hall_table, bool *result);
 int mcpwm_foc_dc_cal(bool cal_undriven);
 void mcpwm_foc_print_state(void);
-float mcpwm_foc_get_last_adc_isr_duration(void);
 void mcpwm_foc_get_current_offsets(
 		volatile float *curr0_offset,
 		volatile float *curr1_offset,
@@ -151,6 +160,8 @@ void mcpwm_foc_tim_sample_int_handler(void);
 void mcpwm_foc_adc_int_handler(void *p, uint32_t flags);
 
 // Defines
+#ifndef MCPWM_FOC_CURRENT_SAMP_OFFSET
 #define MCPWM_FOC_CURRENT_SAMP_OFFSET				(2) // Offset from timer top for ADC samples
+#endif
 
 #endif /* MCPWM_FOC_H_ */

@@ -1,6 +1,6 @@
 /** \file env.h */
 /*
-    Copyright 2018 Joel Svensson        svenssonjoel@yahoo.se
+    Copyright 2018, 2025 Joel Svensson        svenssonjoel@yahoo.se
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,29 +25,38 @@
 extern "C" {
 #endif
 
+/** Global environment hashtable size */
 #define GLOBAL_ENV_ROOTS 32
+/** Symbol to hashtable entry hashfunction */
 #define GLOBAL_ENV_MASK  0x1F
 
 //environment interface
 /** Initialize the global environment. This sets the global environment to NIL
  *
- * \return 1
+ * \return true on success and false on failure.
  */
-int lbm_init_env(void);
+bool lbm_init_env(void);
 /**
  *
- * \return the global environment
+ * \return Pointer to the global environment
  */
 lbm_value *lbm_get_global_env(void);
+/**
+ * \return the size of the global env in number of heap cells.
+ */
+lbm_uint lbm_get_global_env_size(void);
 /** Copy the spine of an environment. The list structure is
  * recreated but the values themselves are not copied but rather
  * just referenced.
+ *
+ * \internalonly
  *
  * \param env Environment to copy.
  * \return Copy of environment.
  */
 lbm_value lbm_env_copy_spine(lbm_value env);
 /** Lookup a value in an environment.
+ * \recommendpause
  * \param res Result stored here
  * \param sym The key to look for in the environment
  * \param env The environment to search for the key.
@@ -55,20 +64,16 @@ lbm_value lbm_env_copy_spine(lbm_value env);
  */
 bool lbm_env_lookup_b(lbm_value *res, lbm_value sym, lbm_value env);
 /** Lookup a value in the global environment.
+ * \recommendpause
  * \param res Result stored here
  * \param sym The key to look for in the environment
  * \param env The environment to search for the key.
  * \return True on success or false otherwise.
  */
 bool lbm_global_env_lookup(lbm_value *res, lbm_value sym);
-/** Lookup a value in from the global environment.
- *
- * \param sym The key to look for in the environment
- * \param env The environment to search for the key.
- * \return The value bound to key or lbm_enc_sym(SYM_NOT_FOUND).
- */
-lbm_value lbm_env_lookup(lbm_value sym, lbm_value env);
 /** Create a new binding on the environment or replace an old binding.
+ *
+ * \evalpaused
  *
  * \param env Environment to modify.
  * \param key A symbol to associate with a value.
@@ -76,16 +81,7 @@ lbm_value lbm_env_lookup(lbm_value sym, lbm_value env);
  * \return The modified environment or lbm_enc_sym(SYM_MERROR) if GC needs to be run.
  */
 lbm_value lbm_env_set(lbm_value env, lbm_value key, lbm_value val);
-/** Create a new binding on the environment without destroying the old value.
- *  If the old value is unused (the key-value pair) it will be freed by GC
- *  at next convenience.
- *
- * \param env Environment to modify.
- * \param key A symbol to associate with a value.
- * \param val The value.
- * \return The modified environment or lbm_enc_sym(SYM_MERROR) if GC needs to be run.
- */
-lbm_value lbm_env_set_functional(lbm_value env, lbm_value key, lbm_value val);
+
 /** Modifies an existing binding on the environment.
  *
  * \param env The environment to modify.
@@ -95,6 +91,9 @@ lbm_value lbm_env_set_functional(lbm_value env, lbm_value key, lbm_value val);
  */
 lbm_value lbm_env_modify_binding(lbm_value env, lbm_value key, lbm_value val);
 /** Removes a binding (destructively) from the input environment.
+ *
+ * \evalpaused
+ *
  * \param env Environment to modify.
  * \param key Key to remove from environment.
  * \return Updated environment or not_found symbol.

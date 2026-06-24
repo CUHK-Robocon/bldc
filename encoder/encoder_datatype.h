@@ -38,7 +38,11 @@ typedef enum {
 	ENCODER_TYPE_ABI,
 	ENCODER_TYPE_AS5x47U,
 	ENCODER_TYPE_BISSC,
-	ENCODER_TYPE_CUSTOM
+	ENCODER_TYPE_CUSTOM,
+	ENCODER_TYPE_PWM,
+	ENCODER_TYPE_PWM_ABI,
+	ENCODER_TYPE_MA782,
+	ENCODER_TYPE_AMT22
 } encoder_type_t;
 
 typedef struct {
@@ -123,7 +127,9 @@ typedef enum tle5012_errortypes {
 
 typedef struct {
 	volatile bool index_found;
+	volatile uint32_t cnt_at_ind_last;
 	volatile int bad_pulses;
+	volatile uint32_t index_pulse_cnt;
 } ABI_state;
 
 typedef struct {
@@ -167,6 +173,8 @@ typedef struct {
 	float phase_correction; //phase angle correction (in deg) when encoder outputs sin(anle)/cos(angle+pase_correction)
 	float sph; // sin of the phase_correction angle
 	float cph; // cos of the phase_correction angle
+	float ratio;
+	float delay_comp_sign;
 
 	ENCSINCOS_state state;
 } ENCSINCOS_config_t;
@@ -302,5 +310,70 @@ typedef struct {
 
 	BISSC_state state;
 } BISSC_config_t;
+
+
+typedef enum {
+	MA782_IDLE = 0,
+	MA782_READ_ANGLE_REQ,
+} ma782_substate_t;
+
+typedef enum {
+	MA782_CALLBACK_IN_IDLE     = 1 << 0,
+	MA782_SPI_ERROR            = 1 << 1,
+	MA782_READ_NOT_IDLE        = 1 << 2,
+	MA782_SPI_NOT_READY        = 1 << 3,
+	MA782_ANGLE_NOT_IDLE       = 1 << 4,
+	MA782_UNKNOWN_STATE        = 1 << 5,
+	MA782_WRITE_NOT_IDLE       = 1 << 6,
+	MA782_WRITE_REG_FAIL       = 1 << 7,
+	MA782_WRITE_READOUT_FAIL   = 1 << 8,
+} ma782_error_t;
+
+typedef struct {
+	float last_enc_angle;
+	uint32_t spi_error_cnt;
+	float spi_error_rate;
+	uint32_t spi_comm_error_cnt;
+	float spi_comm_error_rate;
+	ma782_substate_t substate;
+	uint16_t rx_data;
+	uint16_t tx_data;
+	unsigned start;
+	unsigned error;
+	unsigned error_count;
+	unsigned spi_cnt;
+	uint8_t rx_buf[4];
+	uint8_t tx_buf[4];
+} ma782_state_t;
+
+typedef struct {
+	SPIDriver *spi_dev;
+	SPIConfig hw_spi_cfg;
+	uint8_t spi_af;
+	stm32_gpio_t *nss_gpio;
+	int nss_pin;
+	stm32_gpio_t *sck_gpio;
+	int sck_pin;
+	stm32_gpio_t *mosi_gpio;
+	int mosi_pin;
+	stm32_gpio_t *miso_gpio;
+	int miso_pin;
+	stm32_gpio_t *en_gpio;
+	int en_pin;
+	ma782_state_t state;
+} ma782_config_t;
+
+typedef struct {
+	uint16_t spi_val;
+	float last_enc_angle;
+	uint32_t spi_error_cnt;
+	float spi_error_rate;
+	uint32_t last_update_time;
+} AMT22_state;
+
+typedef struct {
+	spi_bb_state sw_spi;
+	AMT22_state state;
+} AMT22_config_t;
 
 #endif /* ENCODER_DATATYPE_H_ */

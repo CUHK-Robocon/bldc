@@ -36,6 +36,7 @@ typedef struct {
 	float mod_alpha_raw;
 	float mod_beta_raw;
 	float id_target;
+	bool id_override_hfi;
 	float iq_target;
 	float max_duty;
 	float duty_now;
@@ -86,6 +87,7 @@ typedef struct {
 	float sign_last_sample;
 	float cos_last, sin_last;
 	float prev_sample;
+	float prev_sample_d;
 	float angle;
 	float double_integrator;
 	int est_done_cnt;
@@ -147,6 +149,7 @@ typedef struct {
 	float m_id_set;
 	float m_iq_set;
 	float m_i_fw_set;
+	float m_i_fw_override;
 	float m_current_off_delay;
 	float m_openloop_speed;
 	float m_openloop_phase;
@@ -244,6 +247,9 @@ typedef struct {
 	float p_ld;
 	float p_inv_ld_lq; // (1.0/lq - 1.0/ld)
 	float p_v2_v3_inv_avg_half; // (0.5/ld + 0.5/lq)
+	float p_duty_norm;
+	float p_fs;
+	float p_dt;
 } motor_all_state_t;
 
 // Functions
@@ -251,7 +257,7 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 		float dt, observer_state *state, float *phase, motor_all_state_t *motor);
 void foc_pll_run(float phase, float dt, float *phase_var,
 		float *speed_var, mc_configuration *conf);
-void foc_svm(float alpha, float beta, uint32_t PWMFullDutyCycle,
+void foc_svm(float alpha, float beta, float max_mod, uint32_t PWMFullDutyCycle,
 		uint32_t* tAout, uint32_t* tBout, uint32_t* tCout, uint32_t *svm_sector);
 void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *motor);
 void foc_run_pid_control_speed(bool index_found, float dt, motor_all_state_t *motor);

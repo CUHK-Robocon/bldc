@@ -1,6 +1,6 @@
 # VESC Firmware for CUHK Robotics Team
 
-An open source motor controller firmware tailor-made for the CUHK Robotics Team, based on v6.05 of Benjamin Vedder's `bldc` project.
+An open source motor controller firmware tailor-made for the CUHK Robotics Team, based on v7.00 of Benjamin Vedder's `bldc` project.
 
 Read more about Benjamin Vedder's project at [https://vesc-project.com/](https://vesc-project.com/).
 

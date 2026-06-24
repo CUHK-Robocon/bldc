@@ -1,5 +1,5 @@
 /*
-	Copyright 2016 - 2022 Benjamin Vedder	benjamin@vedder.se
+	Copyright 2016 - 2025 Benjamin Vedder	benjamin@vedder.se
 	Copyright 2022 Jakub Tomczak
 
 	This file is part of the VESC firmware.
@@ -33,6 +33,9 @@
 #include "enc_sincos.h"
 #include "enc_tle5012.h"
 #include "enc_ts5700n8501.h"
+#include "enc_pwm.h"
+#include "enc_ma782.h"
+#include "enc_amt22.h"
 
 // Functions
 bool encoder_init(volatile mc_configuration *conf);

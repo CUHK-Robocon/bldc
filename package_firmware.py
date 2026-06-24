@@ -1,6 +1,7 @@
 import shutil
 import os
 import subprocess
+import sys
 
 # https://stackoverflow.com/questions/14989858/get-the-current-git-hash-in-a-python-script
 def get_git_revision_short_hash() -> str:
@@ -20,10 +21,6 @@ default_name = "VESC_default.bin"
 # Add directories and targets to the dictionary
 # package_dict["group name diplayed in firmware tab of the vesc tool"] = [['.c filename minus the hw_', 'compiled .bin filename']]
 package_dict = {}
-package_dict["46_o_47"] = [['46', default_name],
-                    ['46_33k', 'VESC_33k.bin'],
-                    ['46_0005ohm', 'VESC_0005ohm.bin']]
-package_dict["48"] = [['48', default_name]]
 package_dict["410_o_411_o_412"] = [['410', default_name],
                     ['410_no_limits', no_limits_name],
                     ['410_0005ohm', 'VESC_0005ohm.bin'],
@@ -39,19 +36,14 @@ package_dict["60_MK5"] = [['60_mk5', default_name],
 package_dict["60_MK6"] = [['60_mk6', default_name],
                     ['60_mk6_no_limits', no_limits_name]]
 package_dict["60_MK6_MAX"] = [['60_mk6_max', default_name]]
-package_dict["DAS_RS"] = [['das_rs', default_name]]
 package_dict["75_300"] = [['75_300', default_name],
                     ['75_300_no_limits', no_limits_name]]
 package_dict["75_300_R2"] = [['75_300_r2', default_name],
                     ['75_300_r2_no_limits', no_limits_name]]
 package_dict["75_300_R3"] = [['75_300_r3', default_name],
                     ['75_300_r3_no_limits', no_limits_name]]
-package_dict["AXIOM"] = [['axiom', default_name]]
-package_dict["UAVC_OMEGA"] = [['uavc_omega', default_name]]
 package_dict["HD60"] = [['hd60', default_name],
                     ['hd60_no_limits', no_limits_name]]
-package_dict["HD75"] = [['hd75', default_name],
-                    ['hd75_no_limits', no_limits_name]]
 package_dict["A50S_6S"] = [['a50s_v22_6s', default_name]]
 package_dict["A50S_6S_HG"] = [['a50s_v22_6s_hg', default_name]]
 package_dict["A50S_12S"] = [['a50s_v22_12s', default_name]]
@@ -105,17 +97,18 @@ package_dict["TRONIC_250R"] = [['TRONIC_250R', default_name]]
 package_dict["X12_PRO24"] = [['x12_pro24', default_name]]
 package_dict["X12_PRO30"] = [['x12_pro30', default_name]]
 package_dict["Thor300"] = [['Thor300_20s', default_name]]
-package_dict["JetFleetF6"] = [['JetFleetF6', default_name]]
-package_dict["UXV_SR"] = [['uxv_sr', default_name]]
+package_dict["Thor301"] = [['Thor301', default_name]]
+package_dict["Thor400"] = [['Thor400', default_name]]
+package_dict["Thor400v2"] = [['Thor400v2', default_name]]
+package_dict["Lightning400"] = [['Lightning400', default_name]]
+package_dict["JetFleetF6_20s"] = [['JetFleetF6_20s', default_name]]
+package_dict["JetFleetF6_24s"] = [['JetFleetF6_24s', default_name]]
+package_dict["JetFleetF6_32s"] = [['JetFleetF6_32s', default_name]]
 package_dict["GESC"] = [['gesc', default_name]]
 package_dict["Warrior6"] = [['warrior6', default_name]]
 package_dict["Raiden7"] = [['raiden7', default_name]]
 package_dict["ADV200"] = [['adv200', default_name]]
 package_dict["ADV500"] = [['adv500', default_name]]
-package_dict["100_500"] = [['100_500', default_name],
-                    ['100_500_no_limits', no_limits_name]]
-package_dict["75_600"] = [['75_600', default_name],
-                    ['75_600_no_limits', no_limits_name]]
 package_dict["60v2_alva"] = [['60v2_alva', default_name]]
 package_dict["60v2_alva_mk1"] = [['60v2_alva_mk1', default_name]]
 package_dict["60v2_alva_mk2"] = [['60v2_alva_mk2', default_name]]
@@ -140,6 +133,10 @@ package_dict["UBOX_SINGLE_85_200"] = [['ubox_single_85_200', default_name],
                                   ['ubox_single_85_200_no_limits', no_limits_name]]
 package_dict["UBOX_V2_100"] = [['ubox_v2_100', default_name],
                                ['ubox_v2_100_no_limits', no_limits_name]]
+package_dict["UBOX_126_100"] = [['ubox_126_100', default_name],
+                               ['ubox_126_100_no_limits', no_limits_name]]
+package_dict["UBOX_126_160"] = [['ubox_126_160', default_name],
+                               ['ubox_126_160_no_limits', no_limits_name]]
 package_dict["EDU"] = [['edu', default_name],
                     ['edu_no_limits', no_limits_name]]
 package_dict["75_300_MKIV"] = [['75_300_mkiv', default_name],
@@ -167,33 +164,93 @@ package_dict["SOLO"] = [['solo', default_name],
                     ['solo_no_limits', no_limits_name]]
 package_dict["FSESC_75_200_ALU"] = [['fsesc_75_200_alu', default_name],
                     ['fsesc_75_200_alu_no_limits', no_limits_name]]
-package_dict["MKSESC_75_100"] = [['mksesc_75_100', default_name],
-                    ['mksesc_75_100_no_limits', no_limits_name]]
+package_dict["MKSESC_75_100_OLD"] = [['mksesc_75_100_old', default_name],
+                    ['mksesc_75_100_old_no_limits', no_limits_name]]
 package_dict["MKSESC_75_100_V2"] = [['mksesc_75_100_v2', default_name],
-                    ['mksesc_75_100_v2_no_limits', no_limits_name]]                    
+                    ['mksesc_75_100_v2_no_limits', no_limits_name]]      
+package_dict["MKSESC_75_100_V2_OLD"] = [['mksesc_75_100_v2_old', default_name],
+                    ['mksesc_75_100_v2_old_no_limits', no_limits_name]]                
 package_dict["MKSESC_75_200_V2"] = [['mksesc_75_200_v2', default_name],
                     ['mksesc_75_200_v2_no_limits', no_limits_name]]
+package_dict["MKSESC_75_200_V2_OLD"] = [['mksesc_75_200_v2_old', default_name],
+                    ['mksesc_75_200_v2_old_no_limits', no_limits_name]]
 package_dict["MKSESC_84_100_HP"] = [['mksesc_84_100_hp', default_name],
                     ['mksesc_84_100_hp_no_limits', no_limits_name]]                    
 package_dict["MKSESC_84_200_HP"] = [['mksesc_84_200_hp', default_name],
-                    ['mksesc_84_200_hp_no_limits', no_limits_name]]
+                    ['mksesc_84_200_hp_no_limits', no_limits_name]] 
+package_dict["MKSESC_100_300_HP"] = [['mksesc_100_300_hp', default_name],
+                    ['mksesc_100_300_hp_no_limits', no_limits_name]] 
 package_dict["STR500"] = [['str500', default_name],
                     ['str500_no_limits', no_limits_name]]
-package_dict["STR500_01"] = [['str500_01', default_name]]
-package_dict["STR500_HP"] = [['str500_hp', default_name],
-                    ['str500_hp_no_limits', no_limits_name]]
-package_dict["RB"] = [['rb', default_name]]
 package_dict["STR365"] = [['str365', default_name],
                     ['str365_no_limits', no_limits_name]]
-package_dict["SPARKF"] = [['sparkf', default_name]]
-package_dict["VESC_BASIC"] = [['basic', default_name],
-                    ['basic_no_limits', no_limits_name]]
-package_dict["VESC_BASIC_035"] = [['basic_035', default_name],
-                    ['basic_035_no_limits', no_limits_name]]
 package_dict["RSR_DD_V1"] = [['RSR_DD_V1', default_name],
                     ['RSR_DD_V1_005', 'RSR_DD_V1_005.bin']]
 package_dict["RSR_DD_V2"] = [['RSR_DD_V2', default_name]]
 package_dict["RSR_DD_V2.1"] = [['RSR_DD_V2.1', default_name]]
+package_dict["ITR_X1"] = [['itr_x1', default_name]]
+package_dict["Maxim_120"] = [['maxim_120', default_name],
+                    ['maxim_120_no_limits', no_limits_name]]
+package_dict["Maximp_120"] = [['maximp_120', default_name],
+                    ['maximp_120_no_limits', no_limits_name]]
+package_dict["Maxim_150"] = [['maxim_150', default_name],
+                    ['maxim_150_no_limits', no_limits_name]]
+package_dict["Maximp_150"] = [['maximp_150', default_name],
+                    ['maximp_150_no_limits', no_limits_name]]
+package_dict["Duet"] = [['duet', default_name],
+                    ['duet_no_limits', no_limits_name]]
+package_dict["Duet XS100"] = [['duet_xs100', default_name],
+                    ['duet_xs100_no_limits', no_limits_name]]
+package_dict["Duet XS60"] = [['duet_xs60', default_name],
+                    ['duet_xs60_no_limits', no_limits_name]]
+package_dict["Minim"] = [['minim', default_name],
+                    ['minim_no_limits', no_limits_name]]
+package_dict["Minim W60"] = [['minim_w60', default_name]]
+package_dict["Pronto"] = [['pronto', default_name],
+                    ['pronto_no_limits', no_limits_name]]
+package_dict["FLIPSKY_75"] = [['flipsky_75', default_name],
+                    ['flipsky_75_no_limits', no_limits_name]]
+package_dict["FLIPSKY_75_450"] = [['flipsky_75_450', default_name],
+                    ['flipsky_75_450_no_limits', no_limits_name]]
+package_dict["FLIPSKY_V4"] = [['flipsky_412', default_name],
+                    ['flipsky_412_no_limits', no_limits_name]]
+package_dict["FLIPSKY_V6"] = [['flipsky_60', default_name],
+                    ['flipsky_60_no_limits', no_limits_name]]
+package_dict["FLIPSKY_V6_MK5"] = [['flipsky_60_mk5', default_name],
+                    ['flipsky_60_mk5_no_limits', no_limits_name]]   
+package_dict["FLIPSKY_110_100"] = [['flipsky_110_100', default_name],
+                    ['flipsky_110_100_no_limits', no_limits_name]] 
+package_dict["FLIPSKY_110_200"] = [['flipsky_110_200', default_name],
+                    ['flipsky_110_200_no_limits', no_limits_name]] 
+package_dict["FLIPSKY_110_300"] = [['flipsky_110_300', default_name],
+                    ['flipsky_110_300_no_limits', no_limits_name]]
+package_dict["FLIPSKY_110_400"] = [['flipsky_110_400', default_name],
+                    ['flipsky_110_400_no_limits', no_limits_name]]                     
+package_dict["Classic"] = [['classic', default_name],
+                    ['classic_no_limits', no_limits_name]]
+package_dict["Classicp"] = [['classicp', default_name],
+                    ['classicp_no_limits', no_limits_name]]
+package_dict["Maximp_120_PH"] = [['maximp_120_ph', default_name],
+                    ['maximp_120_ph_no_limits', no_limits_name]]
+package_dict["Maximp_150_PH"] = [['maximp_150_ph', default_name],
+                    ['maximp_150_ph_no_limits', no_limits_name]]
+package_dict["Maxim_120_PH"] = [['maxim_120_ph', default_name],
+                    ['maxim_120_ph_no_limits', no_limits_name]]
+package_dict["Maxim_150_PH"] = [['maxim_150_ph', default_name],
+                    ['maxim_150_ph_no_limits', no_limits_name]]
+
+# When the argument make_targets is passed print all make targets from the
+# dictianary. The output of this command can be used as arguments to make to
+# only build the targets that are going to be packaged.
+if len(sys.argv) > 1:
+    if sys.argv[1] == "make_targets":
+        target_list = []
+        for directory in package_dict:
+            for target in package_dict[directory]:
+                target_list.append(target[0])
+
+        print(" ".join(target_list))
+        exit()
 
 # This is the firmware stub string
 res_firmwares_string = '        <file>TARGET_DESTINATION_DIRECTORY/TARGET_DESTINATION_FILENAME</file>\n'

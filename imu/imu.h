@@ -41,6 +41,11 @@ void imu_init_bmi160_spi(
         stm32_gpio_t *sck_gpio, int sck_pin,
         stm32_gpio_t *mosi_gpio, int mosi_pin,
         stm32_gpio_t *miso_gpio, int miso_pin);
+void imu_init_lsm6ds3_spi(
+        stm32_gpio_t *nss_gpio, int nss_pin,
+        stm32_gpio_t *sck_gpio, int sck_pin,
+        stm32_gpio_t *mosi_gpio, int mosi_pin,
+        stm32_gpio_t *miso_gpio, int miso_pin);
 void imu_stop(void);
 bool imu_startup_done(void);
 float imu_get_roll(void);
@@ -50,7 +55,7 @@ void imu_get_rpy(float *rpy);
 void imu_get_accel(float *accel);
 void imu_get_gyro(float *gyro);
 void imu_get_mag(float *mag);
-void imu_derotate(float *input, float *output);
+void imu_derotate(const float *input, float *output);
 void imu_get_accel_derotated(float *accel);
 void imu_get_gyro_derotated(float *gyro);
 void imu_get_quaternions(float *q);
